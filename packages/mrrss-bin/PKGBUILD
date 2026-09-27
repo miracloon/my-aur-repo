@@ -20,7 +20,7 @@ source=(
   "MrRSS-${pkgver}-linux-amd64.tar.gz::${url}/releases/download/v${pkgver}/MrRSS-${pkgver}-linux-amd64.tar.gz"
   "mrrss-${pkgver}.png::https://raw.githubusercontent.com/DevXDojo/MrRSS/v${pkgver}/imgs/logo-rounded.png"
   "LICENSE-${pkgver}::https://raw.githubusercontent.com/DevXDojo/MrRSS/v${pkgver}/LICENSE"
-  'files/mrrss.desktop'
+  'mrrss.desktop'
 )
 sha256sums=(
   'fba2d2ffb60a5303589dc980468eb1d26f63a7f39bbfd19e9aa52071025a3780'
