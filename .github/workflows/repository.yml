@@ -39,8 +39,8 @@ jobs:
       matrix: ${{ steps.discover.outputs.matrix }}
       has_work: ${{ steps.discover.outputs.has_work }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
         with:
           enable-cache: true
       - run: uv sync --locked --all-groups
@@ -73,8 +73,8 @@ jobs:
       matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
         with:
           enable-cache: true
       - run: uv sync --locked --all-groups
@@ -90,7 +90,7 @@ jobs:
           '${{ matrix.expected }}'
       - name: Upload successful package
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: built-${{ matrix.package }}
           if-no-files-found: error
@@ -116,16 +116,16 @@ jobs:
     if: always() && needs.discover.outputs.has_work == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v10
         with:
           enable-cache: true
       - run: uv sync --locked --all-groups
       - name: Download successful packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           pattern: built-*
