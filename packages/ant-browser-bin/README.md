@@ -2,10 +2,6 @@
 
 将 [black-ant/Ant-Browser](https://github.com/black-ant/Ant-Browser) 的 Linux amd64 发布资产重打包为原生 Arch 包。
 
-## 再分发与许可
-
-上游仓库当前未附带独立的 `LICENSE` 文件。本包通过公开 Release 再分发，依据是上游作者对本项目的明确授权（由维护者确认，项目为个人自用）。上游后续补充正式许可证时，应据此更新本说明与 PKGBUILD 的 `license` 字段。
-
 ## 持续维护知识
 
 - 上游稳定 Release 资产为 `ant-browser-linux-amd64.zip`，内含 `AntBrowser-<version>-linux-amd64.tar.gz` 与 `ant-browser_<version>_amd64.deb`。

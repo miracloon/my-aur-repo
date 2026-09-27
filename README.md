@@ -33,6 +33,7 @@ sudo pacman -S mrrss-bin
 | 包 | 上游 | 监控 | 输入 |
 |---|---|---|---|
 | `mrrss-bin` | [DevXDojo/MrRSS](https://github.com/DevXDojo/MrRSS) | 稳定 GitHub Release | Linux amd64 tar.gz |
+| `ant-browser-bin` | [black-ant/Ant-Browser](https://github.com/black-ant/Ant-Browser) | 稳定 GitHub Release | Linux amd64 zip（含 tar.gz + deb） |
 
 ## 自动化入口
 
