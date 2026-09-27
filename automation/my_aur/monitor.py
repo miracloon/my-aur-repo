@@ -11,7 +11,7 @@ class MonitorError(RuntimeError):
 
 
 def normalize_release_version(tag: str) -> str:
-    version = tag[1:] if tag.startswith("v") else tag
+    version = tag[1:] if tag.startswith(("v", "V")) else tag
     version = version.replace("-", "_")
     if not re.fullmatch(r"[0-9][A-Za-z0-9._+]*", version):
         raise MonitorError(f"unsupported stable release version: {tag!r}")

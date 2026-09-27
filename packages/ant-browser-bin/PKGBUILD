@@ -1,0 +1,62 @@
+pkgname=ant-browser-bin
+pkgver=1.8.0
+pkgrel=1
+pkgdesc='Multi-profile fingerprint browser manager with proxy-pool management'
+arch=('x86_64')
+url='https://github.com/black-ant/Ant-Browser'
+license=('custom')
+depends=(
+  'glib2'
+  'glibc'
+  'gtk3'
+  'libsoup3'
+  'webkit2gtk-4.1'
+)
+provides=("ant-browser=${pkgver}")
+conflicts=('ant-browser')
+options=('!strip')
+source=(
+  "ant-browser-linux-amd64.zip::${url}/releases/download/V${pkgver}/ant-browser-linux-amd64.zip"
+  'ant-browser.desktop'
+)
+sha256sums=('79aa5a51e7fd30ea9f783e0f8d53ab49d3e630243056f8d14b8f40a24cf66d25'
+            'SKIP')
+
+package() {
+  cd "$srcdir"
+
+  # 上游 Release 资产是 zip，内含 Linux tar.gz 与 deb 两个打包产物。
+  bsdtar -xf "ant-browser-linux-amd64.zip"
+  bsdtar -xf "AntBrowser-${pkgver}-linux-amd64.tar.gz"
+  bsdtar -xf "ant-browser_${pkgver}_amd64.deb" 'data.tar.zst'
+  bsdtar -xf 'data.tar.zst'
+
+  # 应用主体安装到只读的 /opt/ant-browser；应用自身会把可写状态外置到
+  # ~/.local/share/ant-browser/（detached 模式）。
+  install -d "$pkgdir/opt/ant-browser"
+  cp -a ant-chrome "$pkgdir/opt/ant-browser/ant-chrome"
+  chmod 755 "$pkgdir/opt/ant-browser/ant-chrome"
+  install -d "$pkgdir/opt/ant-browser/bin"
+  install -m755 bin/xray bin/sing-box "$pkgdir/opt/ant-browser/bin/"
+  install -m644 config.yaml "$pkgdir/opt/ant-browser/config.yaml"
+  if [[ -f proxies.yaml ]]; then
+    install -m644 proxies.yaml "$pkgdir/opt/ant-browser/proxies.yaml"
+  fi
+  if [[ -d chrome ]]; then
+    cp -a chrome "$pkgdir/opt/ant-browser/chrome"
+  fi
+
+  # 命令入口
+  install -d "$pkgdir/usr/bin"
+  ln -s /opt/ant-browser/ant-chrome "$pkgdir/usr/bin/ant-browser"
+
+  # 桌面集成；图标与 AppStream 元数据取自上游 deb。
+  install -Dm644 "$srcdir/ant-browser.desktop" \
+    "$pkgdir/usr/share/applications/ant-browser.desktop"
+  install -d "$pkgdir/usr/share/icons"
+  cp -a usr/share/icons/hicolor "$pkgdir/usr/share/icons/"
+  install -Dm644 usr/share/pixmaps/ant-browser.png \
+    "$pkgdir/usr/share/pixmaps/ant-browser.png"
+  install -Dm644 usr/share/metainfo/ant-browser.metainfo.xml \
+    "$pkgdir/usr/share/metainfo/ant-browser.metainfo.xml"
+}

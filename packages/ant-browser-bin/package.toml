@@ -1,0 +1,7 @@
+schema = 1
+
+[monitor]
+type = "github_release"
+repository = "black-ant/Ant-Browser"
+prerelease = false
+asset = "ant-browser-linux-amd64.zip"

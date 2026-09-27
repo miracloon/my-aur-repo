@@ -47,6 +47,7 @@ def release(tag="v1.2.3", assets=None, prerelease=False):
 def test_normalize_release_version():
     assert normalize_release_version("v1.2.3") == "1.2.3"
     assert normalize_release_version("1.2.3-stable") == "1.2.3_stable"
+    assert normalize_release_version("V1.8.0") == "1.8.0"
 
 
 def test_resolve_stable_release_asset():

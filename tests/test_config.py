@@ -9,8 +9,10 @@ ROOT = Path(__file__).parents[1]
 
 def test_real_repository_declarations_are_valid():
     packages = enabled_packages(ROOT)
-    assert [package.name for package in packages] == ["mrrss-bin"]
-    assert packages[0].monitor.repository == "DevXDojo/MrRSS"
+    assert [package.name for package in packages] == ["ant-browser-bin", "mrrss-bin"]
+    by_name = {package.name: package for package in packages}
+    assert by_name["mrrss-bin"].monitor.repository == "DevXDojo/MrRSS"
+    assert by_name["ant-browser-bin"].monitor.repository == "black-ant/Ant-Browser"
 
 
 def test_selected_package_must_be_enabled(tmp_path):

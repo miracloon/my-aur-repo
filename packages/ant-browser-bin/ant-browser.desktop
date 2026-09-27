@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Ant Browser
+Comment=Multi-profile fingerprint browser manager
+Exec=ant-browser %F
+Icon=ant-browser
+Terminal=false
+Categories=Network;Utility;
+StartupWMClass=Ant-chrome
+Keywords=browser;fingerprint;proxy;multi-account;
