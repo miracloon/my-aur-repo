@@ -1,0 +1,27 @@
+# Python / uv
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Package build outputs
+**/src/
+**/pkg/
+*.pkg.tar.*
+*.src.tar.*
+*.log
+.SRCINFO
+
+# Repository and downloaded assets
+/dist/
+/repo-work/
+*.db
+*.db.*
+*.files
+*.files.*
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

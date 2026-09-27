@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/miracloon/my-aur-repo/schemas/package-v1.json",
+  "title": "my-aur package declaration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "monitor"],
+  "properties": {
+    "schema": { "const": 1 },
+    "monitor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "repository", "prerelease", "asset"],
+      "properties": {
+        "type": { "const": "github_release" },
+        "repository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "prerelease": { "const": false },
+        "asset": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

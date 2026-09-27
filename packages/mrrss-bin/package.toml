@@ -1,0 +1,7 @@
+schema = 1
+
+[monitor]
+type = "github_release"
+repository = "DevXDojo/MrRSS"
+prerelease = false
+asset = "MrRSS-{version}-linux-amd64.tar.gz"

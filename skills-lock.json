@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "ry-docs-control": {
+      "source": "miracloon/my-skill-repo",
+      "sourceType": "github",
+      "skillPath": "skills-govern/ry-docs-control/SKILL.md",
+      "computedHash": "5dbc3cd72a9d80c7a130f45de67cd62c4bd6dba1a2c05ae96637c7d47c3ffa5e"
+    }
+  }
+}

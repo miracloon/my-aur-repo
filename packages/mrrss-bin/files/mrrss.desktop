@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=MrRSS
+GenericName=RSS Reader
+Comment=A modern, standalone RSS reader
+Exec=mrrss %U
+Icon=mrrss
+Terminal=false
+Categories=Network;News;Feed;
+StartupWMClass=MrRSS
+Keywords=RSS;Atom;Feed;News;Reader;
+X-GNOME-UsesNotifications=true

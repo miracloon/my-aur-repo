@@ -1,0 +1,137 @@
+name: Update package repository
+
+on:
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Optional enabled package name'
+        required: false
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - 'registry/**'
+      - 'packages/**'
+      - 'automation/**'
+      - 'schemas/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/repository.yml'
+
+permissions:
+  contents: write
+  issues: write
+
+env:
+  UV_FROZEN: 'true'
+
+concurrency:
+  group: package-repository
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.discover.outputs.matrix }}
+      has_work: ${{ steps.discover.outputs.has_work }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked --all-groups
+      - run: uv run ruff check .
+      - run: uv run pytest
+      - run: uv run my-aur validate
+      - id: discover
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SELECTED_PACKAGE: ${{ inputs.package }}
+        run: |
+          args=()
+          if [[ -n "${SELECTED_PACKAGE}" ]]; then
+            args+=(--package "${SELECTED_PACKAGE}")
+          fi
+          matrix=$(uv run my-aur discover "${args[@]}")
+          count=$(jq '.include | length' <<<"${matrix}")
+          echo "matrix=${matrix}" >>"${GITHUB_OUTPUT}"
+          if (( count > 0 )); then
+            echo 'has_work=true' >>"${GITHUB_OUTPUT}"
+          else
+            echo 'has_work=false' >>"${GITHUB_OUTPUT}"
+          fi
+
+  build:
+    needs: discover
+    if: needs.discover.outputs.has_work == 'true'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked --all-groups
+      - name: Prepare PKGBUILD
+        run: >-
+          uv run my-aur prepare
+          --package '${{ matrix.package }}'
+          --version '${{ matrix.version }}'
+      - name: Build and validate package
+        run: >-
+          automation/scripts/build-package.sh
+          '${{ matrix.package }}'
+          '${{ matrix.expected }}'
+      - name: Upload successful package
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-${{ matrix.package }}
+          if-no-files-found: error
+          retention-days: 1
+          path: |
+            packages/${{ matrix.package }}/PKGBUILD
+            dist/${{ matrix.package }}/*.pkg.tar.zst
+            dist/${{ matrix.package }}/namcap-*.txt
+      - name: Report package failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: >-
+          uv run my-aur report-failure
+          --package '${{ matrix.package }}'
+          --version '${{ matrix.version }}'
+          --stage build-and-validate
+          --run-url "${RUN_URL}"
+
+  publish:
+    needs: [discover, build]
+    if: always() && needs.discover.outputs.has_work == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked --all-groups
+      - name: Download successful packages
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: built-*
+          path: collected
+          merge-multiple: true
+      - name: Commit and publish successful packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: automation/scripts/publish-repository.sh collected
