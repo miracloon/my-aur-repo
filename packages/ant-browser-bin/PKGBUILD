@@ -20,7 +20,7 @@ source=(
   'ant-browser.desktop'
 )
 sha256sums=('79aa5a51e7fd30ea9f783e0f8d53ab49d3e630243056f8d14b8f40a24cf66d25'
-            'SKIP')
+            '51fc958d8e576d81c060b83225baf65766ca8e557df13b66874bd4f13a441017')
 
 package() {
   cd "$srcdir"
