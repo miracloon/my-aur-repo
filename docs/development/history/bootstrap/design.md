@@ -1,6 +1,6 @@
 # Bootstrap Design
 
-> Status: active design
+> Status: completed and archived (2026-09-28)
 > Scope: 建立 my-aur-repo 最小完整链路，并以 `mrrss-bin` 作为首个验证实例。
 
 ## 背景

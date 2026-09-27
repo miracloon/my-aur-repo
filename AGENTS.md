@@ -58,4 +58,3 @@ GitHub Releases              # pacman 数据库和 .pkg.tar.zst，不进入 Git
 | [`docs/modules/automation.md`](docs/modules/automation.md) | 自动化模块 | 处理触发、构建、验证、失败和直接发布时 |
 | [`docs/modules/repository.md`](docs/modules/repository.md) | pacman 仓库模块 | 处理 Release、数据库、保留和客户端契约时 |
 | [`docs/development/DEV_WORKFLOW.md`](docs/development/DEV_WORKFLOW.md) | 阶段材料治理 | 开始或结束中大型建设、迁移和实验时 |
-| [`docs/development/active/bootstrap/state.md`](docs/development/active/bootstrap/state.md) | 当前建设状态 | 继续首次建设与 `mrrss-bin` 接入时 |

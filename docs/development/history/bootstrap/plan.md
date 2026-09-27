@@ -1,7 +1,7 @@
 # Bootstrap Plan
 
-> Status: planned
-> 本计划是当前 Design 的执行投影，可根据实现证据调整；它不证明任何能力已经存在。
+> Status: completed and archived (2026-09-28)
+> 本计划是 Bootstrap 的历史执行投影，不再表示当前待办；真实第二版本升级与定时触发留待日常运行自然验证。
 
 ## 阶段 1：建立仓库基础
 
