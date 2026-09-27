@@ -22,12 +22,10 @@ source=(
   "LICENSE-${pkgver}::https://raw.githubusercontent.com/DevXDojo/MrRSS/v${pkgver}/LICENSE"
   'mrrss.desktop'
 )
-sha256sums=(
-  'fba2d2ffb60a5303589dc980468eb1d26f63a7f39bbfd19e9aa52071025a3780'
-  '4bc59cd33bce983a9b5a21f17e65608f14d21f45b6a1adeb3583d73f28bb0496'
-  '3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986'
-  '65b714dc0e02eb44a310a3823e96188512199e3cfbcb6fd256411fb110165f96'
-)
+sha256sums=('fba2d2ffb60a5303589dc980468eb1d26f63a7f39bbfd19e9aa52071025a3780'
+            '4bc59cd33bce983a9b5a21f17e65608f14d21f45b6a1adeb3583d73f28bb0496'
+            '3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986'
+            '65b714dc0e02eb44a310a3823e96188512199e3cfbcb6fd256411fb110165f96')
 
 package() {
   install -Dm755 "${srcdir}/MrRSS" "${pkgdir}/usr/bin/mrrss"
