@@ -1,27 +1,53 @@
 from pathlib import Path
 
 import pytest
+from conftest import REAL_ROOT
 
 from my_aur.config import ConfigError, enabled_packages, load_registry
 
-ROOT = Path(__file__).parents[1]
-
 
 def test_real_repository_declarations_are_valid():
-    packages = enabled_packages(ROOT)
-    assert [package.name for package in packages] == ["ant-browser-bin", "mrrss-bin"]
-    by_name = {package.name: package for package in packages}
-    assert by_name["mrrss-bin"].monitor.repository == "DevXDojo/MrRSS"
-    assert by_name["ant-browser-bin"].monitor.repository == "black-ant/Ant-Browser"
+    """Assert invariants of the real registry, never its concrete package set.
+
+    Package names and versions change whenever automation follows upstream, so
+    pinning them here would turn routine version bumps into red CI runs.
+    """
+    packages = enabled_packages(REAL_ROOT)
+    assert packages, "at least one package must stay enabled"
+    assert [package.name for package in packages] == sorted(package.name for package in packages)
+    for package in packages:
+        assert package.directory.name == package.name
+        assert package.monitor.type == "github_release"
+        assert "/" in package.monitor.repository
+        assert "{version}" in package.monitor.asset or package.monitor.asset
+        assert package.monitor.prerelease is False
 
 
-def test_selected_package_must_be_enabled(tmp_path):
-    (tmp_path / "registry").mkdir()
-    (tmp_path / "registry/packages.toml").write_text(
-        "schema = 1\n[packages]\nfoo-bin = false\n", encoding="utf-8"
-    )
+def test_registry_and_package_declarations_agree():
+    registry = load_registry(REAL_ROOT)
+    enabled = {name for name, flag in registry.items() if flag}
+    assert {package.name for package in enabled_packages(REAL_ROOT)} == enabled
+
+
+def test_selected_package_must_be_enabled(synthetic_repository):
+    synthetic_repository.add_package("foo-bin", enabled=False)
     with pytest.raises(ConfigError, match="disabled"):
-        enabled_packages(tmp_path, "foo-bin")
+        enabled_packages(synthetic_repository.root, "foo-bin")
+
+
+def test_unregistered_selection_is_rejected(synthetic_repository):
+    synthetic_repository.add_package("foo-bin")
+    with pytest.raises(ConfigError, match="not registered"):
+        enabled_packages(synthetic_repository.root, "missing-bin")
+
+
+def test_pkgname_must_match_directory(synthetic_repository, tmp_path: Path):
+    directory = synthetic_repository.add_package("foo-bin")
+    (directory / "PKGBUILD").write_text(
+        "pkgname=other-bin\npkgver=1.0.0\npkgrel=1\n", encoding="utf-8"
+    )
+    with pytest.raises(ConfigError, match="does not match"):
+        enabled_packages(synthetic_repository.root, "foo-bin")
 
 
 def test_registry_rejects_unknown_top_level_field(tmp_path):

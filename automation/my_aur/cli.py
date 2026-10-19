@@ -8,7 +8,13 @@ from pathlib import Path
 from .config import enabled_packages, repository_root
 from .github import GitHubClient
 from .pkgbuild import update_upstream_version
-from .repository import close_failure, discover_work, prune_old_assets, report_failure
+from .repository import (
+    close_failure,
+    discover_work,
+    prune_old_assets,
+    report_failure,
+    report_failures,
+)
 
 
 def _repository(value: str | None) -> str:
@@ -27,8 +33,17 @@ def command_validate(args: argparse.Namespace) -> int:
 
 def command_discover(args: argparse.Namespace) -> int:
     root = repository_root(args.root)
-    work = discover_work(root, _repository(args.repository), GitHubClient(), args.package)
-    print(json.dumps({"include": work}, separators=(",", ":")))
+    repository = _repository(args.repository)
+    github = GitHubClient()
+    result = discover_work(root, repository, github, args.package)
+    if result.failures:
+        report_failures(
+            github,
+            repository,
+            result.failures,
+            args.run_url or "https://github.com/actions/runs/unknown",
+        )
+    print(json.dumps({"include": result.work}, separators=(",", ":")))
     return 0
 
 
@@ -76,6 +91,7 @@ def parser() -> argparse.ArgumentParser:
     discover = subparsers.add_parser("discover")
     discover.add_argument("--package")
     discover.add_argument("--repository")
+    discover.add_argument("--run-url")
     discover.set_defaults(func=command_discover)
 
     prepare = subparsers.add_parser("prepare")

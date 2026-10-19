@@ -51,12 +51,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           SELECTED_PACKAGE: ${{ inputs.package }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           args=()
           if [[ -n "${SELECTED_PACKAGE}" ]]; then
             args+=(--package "${SELECTED_PACKAGE}")
           fi
-          matrix=$(uv run my-aur discover "${args[@]}")
+          matrix=$(uv run my-aur discover "${args[@]}" --run-url "${RUN_URL}")
           count=$(jq '.include | length' <<<"${matrix}")
           echo "matrix=${matrix}" >>"${GITHUB_OUTPUT}"
           if (( count > 0 )); then
