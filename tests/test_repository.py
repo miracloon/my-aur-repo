@@ -1,3 +1,6 @@
+import argparse
+import json
+
 import pytest
 from conftest import REPOSITORY, FakeGitHub, SyntheticRepository, make_release
 
@@ -123,3 +126,41 @@ def test_failure_issue_records_stage(fake_github: FakeGitHub, stage: str):
         "https://example.invalid/run/1",
     )
     assert f"`{stage}`" in fake_github.issue_list[0]["body"]
+
+
+def test_reporting_failure_does_not_discard_discovery(
+    synthetic_repository: SyntheticRepository, monkeypatch, capsys
+):
+    """A flaky Issue API must not freeze the packages that could still build."""
+    from my_aur.cli import command_discover
+    from my_aur.github import GitHubError
+
+    synthetic_repository.add_package("broken-bin", pkgver="2.0.0")
+    synthetic_repository.add_package(
+        "healthy-bin", pkgver="1.0.0", repository="other/project", asset="Other-{version}.zip"
+    )
+    github = FakeGitHub(
+        {
+            "owner/project": make_release("1.0.0"),
+            "other/project": make_release("1.1.0", asset="Other-1.1.0.zip"),
+        }
+    )
+
+    def broken_issues(repository, state="all"):
+        raise GitHubError("HTTP 502")
+
+    monkeypatch.setattr(github, "issues", broken_issues)
+    monkeypatch.setattr("my_aur.cli.GitHubClient", lambda *args, **kwargs: github)
+
+    args = argparse.Namespace(
+        root=synthetic_repository.root,
+        repository=REPOSITORY,
+        package=None,
+        run_url="https://example.invalid/run/1",
+    )
+    assert command_discover(args) == 0
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out.strip().splitlines()[-1])
+    assert [item["package"] for item in payload["include"]] == ["healthy-bin"]
+    assert "could not report package failures" in captured.err

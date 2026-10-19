@@ -17,11 +17,16 @@ for package in "${package_names[@]}"; do
   install -Dm644 "${artifacts}/packages/${package}/PKGBUILD" \
     "${root}/packages/${package}/PKGBUILD"
 done
-
 git config user.name 'github-actions[bot]'
 git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 git add packages/*/PKGBUILD
 if ! git diff --cached --quiet; then
+  # Commits pushed with GITHUB_TOKEN never trigger this workflow, so the state
+  # that lands on main would otherwise reach the repository unverified. Re-run
+  # the same gates the discover job runs before committing it.
+  uv run ruff check .
+  uv run pytest
+  uv run my-aur validate
   git commit -m 'chore(packages): update upstream versions'
   git pull --rebase origin main
   git push origin HEAD:main

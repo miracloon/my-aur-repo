@@ -3,10 +3,11 @@
 import argparse
 import json
 import os
+import sys
 from pathlib import Path
 
 from .config import enabled_packages, repository_root
-from .github import GitHubClient
+from .github import GitHubClient, GitHubError
 from .pkgbuild import update_upstream_version
 from .repository import (
     close_failure,
@@ -37,12 +38,13 @@ def command_discover(args: argparse.Namespace) -> int:
     github = GitHubClient()
     result = discover_work(root, repository, github, args.package)
     if result.failures:
-        report_failures(
-            github,
-            repository,
-            result.failures,
-            args.run_url or "https://github.com/actions/runs/unknown",
-        )
+        run_url = args.run_url or "https://github.com/actions/runs/unknown"
+        try:
+            report_failures(github, repository, result.failures, run_url)
+        except GitHubError as error:
+            # Reporting is best effort: a flaky Issue API must never discard the
+            # discovery result and freeze every otherwise buildable package.
+            print(f"warning: could not report package failures: {error}", file=sys.stderr)
     print(json.dumps({"include": result.work}, separators=(",", ":")))
     return 0
 
