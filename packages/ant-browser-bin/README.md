@@ -9,6 +9,6 @@
 - 应用二进制为 `ant-chrome`（Wails v2），安装到只读的 `/opt/ant-browser/`，命令入口为 `/usr/bin/ant-browser` 符号链接。
 - 安装目录对普通用户只读，应用会自动把可写状态（`data/`、`config.yaml`、`chrome/` 内核）外置到 `~/.local/share/ant-browser/`。
 - desktop 用本仓维护的 `ant-browser.desktop`（上游 deb 内的 `Exec`/`TryExec` 写死绝对路径）；图标（8 个 hicolor 尺寸 + pixmaps）与 AppStream 元数据取自上游 deb。
-- 封装边界：装进包的 `/opt/ant-browser/` 与 `usr/share/` 下文件就是上游 deb 里的原件，不做 strip、裁剪或改写；唯一变换是安装路径映射，因此指纹、代理池、备份等功能随上游二进制原样保留。
+- 封装边界：装进包的 `/opt/ant-browser/` 与 `usr/share/` 下文件就是上游 deb 里的同一份文件，不改内容、不裁剪、不 strip；唯一改动是安装位置，所以指纹、代理池、备份这些功能随上游二进制原样保留。
 - 运行依赖：`glib2`、`glibc`、`gtk3`、`libsoup3`、`webkit2gtk-4.1`。
 - Linux 包不内置浏览器内核；内核由应用在 `~/.local/share/ant-browser/chrome/` 或外部路径维护。
