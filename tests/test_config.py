@@ -50,6 +50,15 @@ def test_pkgname_must_match_directory(synthetic_repository, tmp_path: Path):
         enabled_packages(synthetic_repository.root, "foo-bin")
 
 
+def test_monitored_package_must_declare_source_url(synthetic_repository):
+    directory = synthetic_repository.add_package("foo-bin")
+    (directory / "PKGBUILD").write_text(
+        "pkgname=foo-bin\npkgver=1.0.0\npkgrel=1\n", encoding="utf-8"
+    )
+    with pytest.raises(ConfigError, match="_source_url"):
+        enabled_packages(synthetic_repository.root, "foo-bin")
+
+
 def test_registry_rejects_unknown_top_level_field(tmp_path):
     (tmp_path / "registry").mkdir()
     (tmp_path / "registry/packages.toml").write_text(

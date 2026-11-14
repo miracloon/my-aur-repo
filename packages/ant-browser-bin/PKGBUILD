@@ -1,5 +1,5 @@
 pkgname=ant-browser-bin
-pkgver=1.8.0
+pkgver=1.9.3
 pkgrel=1
 pkgdesc='Multi-profile fingerprint browser manager with proxy-pool management'
 arch=('x86_64')
@@ -15,36 +15,27 @@ depends=(
 provides=("ant-browser=${pkgver}")
 conflicts=('ant-browser')
 options=('!strip')
+
+# 上游稳定 Release 的身份由自动化（my-aur prepare）写入，配方不推导 tag 前缀与资产名；
+# 本地文件名由本仓决定。
+_source_url=https://github.com/black-ant/Ant-Browser/releases/download/v1.9.3/ant-browser_1.9.3_amd64.deb
 source=(
-  "ant-browser-linux-amd64.zip::${url}/releases/download/V${pkgver}/ant-browser-linux-amd64.zip"
+  "ant-browser-${pkgver}.deb::${_source_url}"
   'ant-browser.desktop'
 )
-sha256sums=('79aa5a51e7fd30ea9f783e0f8d53ab49d3e630243056f8d14b8f40a24cf66d25'
+sha256sums=('cadba6c5bfcf335ee1c2b52d8d9c38ce0372cab27015d0c68051bda643d2d229'
             '51fc958d8e576d81c060b83225baf65766ca8e557df13b66874bd4f13a441017')
 
 package() {
   cd "$srcdir"
 
-  # 上游 Release 资产是 zip，内含 Linux tar.gz 与 deb 两个打包产物。
-  bsdtar -xf "ant-browser-linux-amd64.zip"
-  bsdtar -xf "AntBrowser-${pkgver}-linux-amd64.tar.gz"
-  bsdtar -xf "ant-browser_${pkgver}_amd64.deb" 'data.tar.zst'
-  bsdtar -xf 'data.tar.zst'
+  # makepkg 已把 deb 解成 ar 成员，这里只解其中的数据归档。
+  bsdtar -xf data.tar.zst
 
   # 应用主体安装到只读的 /opt/ant-browser；应用自身会把可写状态外置到
   # ~/.local/share/ant-browser/（detached 模式）。
-  install -d "$pkgdir/opt/ant-browser"
-  cp -a ant-chrome "$pkgdir/opt/ant-browser/ant-chrome"
-  chmod 755 "$pkgdir/opt/ant-browser/ant-chrome"
-  install -d "$pkgdir/opt/ant-browser/bin"
-  install -m755 bin/xray bin/sing-box "$pkgdir/opt/ant-browser/bin/"
-  install -m644 config.yaml "$pkgdir/opt/ant-browser/config.yaml"
-  if [[ -f proxies.yaml ]]; then
-    install -m644 proxies.yaml "$pkgdir/opt/ant-browser/proxies.yaml"
-  fi
-  if [[ -d chrome ]]; then
-    cp -a chrome "$pkgdir/opt/ant-browser/chrome"
-  fi
+  install -d "$pkgdir/opt"
+  cp -a opt/ant-browser "$pkgdir/opt/"
 
   # 命令入口
   install -d "$pkgdir/usr/bin"

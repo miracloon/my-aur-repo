@@ -16,10 +16,15 @@ depends=(
 provides=("mrrss=${pkgver}")
 conflicts=('mrrss')
 options=('!strip')
+
+# 上游稳定 Release 的身份由自动化（my-aur prepare）写入，配方不推导 tag 前缀与资产名；
+# 本地文件名由本仓决定。
+_tag=v1.3.42
+_source_url=https://github.com/DevXDojo/MrRSS/releases/download/v1.3.42/MrRSS-1.3.42-linux-amd64.tar.gz
 source=(
-  "MrRSS-${pkgver}-linux-amd64.tar.gz::${url}/releases/download/v${pkgver}/MrRSS-${pkgver}-linux-amd64.tar.gz"
-  "mrrss-${pkgver}.png::https://raw.githubusercontent.com/DevXDojo/MrRSS/v${pkgver}/imgs/logo-rounded.png"
-  "LICENSE-${pkgver}::https://raw.githubusercontent.com/DevXDojo/MrRSS/v${pkgver}/LICENSE"
+  "mrrss-${pkgver}.tar.gz::${_source_url}"
+  "mrrss-${pkgver}.png::https://raw.githubusercontent.com/DevXDojo/MrRSS/${_tag}/imgs/logo-rounded.png"
+  "LICENSE-${pkgver}::https://raw.githubusercontent.com/DevXDojo/MrRSS/${_tag}/LICENSE"
   'mrrss.desktop'
 )
 sha256sums=('a7fc157f807a1cc4f3c1e5b71f18620269a59190d652413abb530882fce5f1c1'

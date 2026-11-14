@@ -8,7 +8,7 @@ from pathlib import Path
 
 from .config import enabled_packages, repository_root
 from .github import GitHubClient, GitHubError
-from .pkgbuild import update_upstream_version
+from .pkgbuild import update_release
 from .repository import (
     close_failure,
     discover_work,
@@ -52,8 +52,13 @@ def command_discover(args: argparse.Namespace) -> int:
 def command_prepare(args: argparse.Namespace) -> int:
     root = repository_root(args.root)
     package = enabled_packages(root, args.package)[0]
-    changed = update_upstream_version(package.directory / "PKGBUILD", args.version)
-    print(json.dumps({"package": package.name, "version_changed": changed}))
+    changed = update_release(
+        package.directory / "PKGBUILD",
+        version=args.version,
+        tag=args.tag,
+        asset_url=args.asset_url,
+    )
+    print(json.dumps({"package": package.name, "changed": changed}))
     return 0
 
 
@@ -99,6 +104,8 @@ def parser() -> argparse.ArgumentParser:
     prepare = subparsers.add_parser("prepare")
     prepare.add_argument("--package", required=True)
     prepare.add_argument("--version", required=True)
+    prepare.add_argument("--tag", required=True)
+    prepare.add_argument("--asset-url", required=True)
     prepare.set_defaults(func=command_prepare)
 
     failure = subparsers.add_parser("report-failure")

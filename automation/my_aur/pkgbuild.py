@@ -7,8 +7,13 @@ from packaging.version import InvalidVersion, Version
 
 from .models import PackageVersion
 
+# `_tag` and `_source_url` carry the resolved upstream release identity. The
+# updater writes them so recipes never re-derive tag prefixes or asset names.
+RELEASE_SCALARS = ("_tag", "_source_url")
+
 _ASSIGNMENT = re.compile(
-    r"^(?P<key>pkgname|pkgver|pkgrel)=(?P<quote>['\"]?)(?P<value>[^'\"\s]+)(?P=quote)$",
+    rf"^(?P<key>pkgname|pkgver|pkgrel|{'|'.join(RELEASE_SCALARS)})="
+    r"(?P<quote>['\"]?)(?P<value>[^'\"\s]+)(?P=quote)$",
     re.MULTILINE,
 )
 
@@ -39,19 +44,30 @@ def _replace_scalar(text: str, key: str, value: str) -> str:
     return updated
 
 
-def update_upstream_version(path: Path, target: str) -> bool:
+def update_release(path: Path, *, version: str, tag: str, asset_url: str) -> bool:
+    """Write the resolved upstream release identity into a PKGBUILD.
+
+    Every release scalar the recipe declares is refreshed; a package that does
+    not consume one keeps no dead field.
+    """
     values = read_scalars(path)
     current = values["pkgver"]
-    if current == target:
-        return False
-    try:
-        if Version(target) <= Version(current):
-            raise PkgbuildError(f"upstream version regression: {target} <= {current}")
-    except InvalidVersion as error:
-        raise PkgbuildError(f"github_release version is not comparable: {target}") from error
-
     text = path.read_text(encoding="utf-8")
-    text = _replace_scalar(text, "pkgver", target)
-    text = _replace_scalar(text, "pkgrel", "1")
-    path.write_text(text, encoding="utf-8")
+    updated = text
+    if current != version:
+        try:
+            if Version(version) <= Version(current):
+                raise PkgbuildError(f"upstream version regression: {version} <= {current}")
+        except InvalidVersion as error:
+            raise PkgbuildError(f"github_release version is not comparable: {version}") from error
+        updated = _replace_scalar(updated, "pkgver", version)
+        updated = _replace_scalar(updated, "pkgrel", "1")
+
+    for key, value in (("_tag", tag), ("_source_url", asset_url)):
+        if key in values and values[key] != value:
+            updated = _replace_scalar(updated, key, value)
+
+    if updated == text:
+        return False
+    path.write_text(updated, encoding="utf-8")
     return True

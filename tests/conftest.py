@@ -57,7 +57,9 @@ class SyntheticRepository:
         directory = self.root / "packages" / name
         directory.mkdir(parents=True, exist_ok=True)
         (directory / "PKGBUILD").write_text(
-            f"pkgname={name}\npkgver={pkgver}\npkgrel={pkgrel}\nsource=()\n",
+            f"pkgname={name}\npkgver={pkgver}\npkgrel={pkgrel}\n"
+            f"_source_url=https://example.invalid/{name}.tar.gz\n"
+            "source=()\n",
             encoding="utf-8",
         )
         (directory / "package.toml").write_text(

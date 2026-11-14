@@ -62,6 +62,11 @@ def load_package(root: Path, name: str) -> PackageConfig:
     scalars = read_scalars(pkgbuild)
     if scalars["pkgname"] != name:
         raise ConfigError(f"{pkgbuild}: pkgname={scalars['pkgname']} does not match {name}")
+    if "_source_url" not in scalars:
+        raise ConfigError(
+            f"{pkgbuild}: declare _source_url (written by `my-aur prepare`) instead of "
+            "deriving the upstream asset URL in the recipe"
+        )
 
     monitor = data["monitor"]
     return PackageConfig(

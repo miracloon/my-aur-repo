@@ -4,4 +4,4 @@ schema = 1
 type = "github_release"
 repository = "black-ant/Ant-Browser"
 prerelease = false
-asset = "ant-browser-linux-amd64.zip"
+asset = "ant-browser_{version}_amd64.deb"
