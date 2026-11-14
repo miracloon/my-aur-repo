@@ -40,9 +40,7 @@ class GitHubClient:
         if result.returncode != 0:
             if allow_404 and "HTTP 404" in result.stderr:
                 return None
-            raise GitHubError(
-                f"GitHub API {method} {path} failed: {result.stderr.strip()}"
-            )
+            raise GitHubError(f"GitHub API {method} {path} failed: {result.stderr.strip()}")
         output = result.stdout.strip()
         return None if not output else json.loads(output)
 
@@ -50,9 +48,7 @@ class GitHubClient:
         return self.request("GET", f"/repos/{repository}/releases/latest")
 
     def release(self, repository: str, tag: str) -> dict[str, Any] | None:
-        return self.request(
-            "GET", f"/repos/{repository}/releases/tags/{tag}", allow_404=True
-        )
+        return self.request("GET", f"/repos/{repository}/releases/tags/{tag}", allow_404=True)
 
     def delete_asset(self, repository: str, asset_id: int) -> None:
         self.request("DELETE", f"/repos/{repository}/releases/assets/{asset_id}")
