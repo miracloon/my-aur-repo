@@ -1,5 +1,5 @@
 pkgname=ant-browser-bin
-pkgver=1.9.4
+pkgver=1.9.7
 pkgrel=1
 pkgdesc='Multi-profile fingerprint browser manager with proxy-pool management'
 arch=('x86_64')
@@ -18,12 +18,12 @@ options=('!strip')
 
 # 上游稳定 Release 的身份由自动化（my-aur prepare）写入，配方不推导 tag 前缀与资产名；
 # 本地文件名由本仓决定。
-_source_url=https://github.com/black-ant/Ant-Browser/releases/download/v1.9.4/ant-browser_1.9.4_amd64.deb
+_source_url=https://github.com/black-ant/Ant-Browser/releases/download/v1.9.7/ant-browser_1.9.7_amd64.deb
 source=(
   "ant-browser-${pkgver}.deb::${_source_url}"
   'ant-browser.desktop'
 )
-sha256sums=('ec8e0c200197a6e150f32be09d1f3c09f874084c8094c9d88a5c074433683fa2'
+sha256sums=('8340be2f5776f6bcf74c5ea2157fd62d80a8aa3b389bdc86b175ec179d7bcf07'
             '51fc958d8e576d81c060b83225baf65766ca8e557df13b66874bd4f13a441017')
 
 package() {
